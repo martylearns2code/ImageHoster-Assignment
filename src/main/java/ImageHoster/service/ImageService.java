@@ -46,5 +46,8 @@ public class ImageService {
         imageRepository.deleteImage(imageId);
     }
 
+    public boolean checkOwnerOfImage(Integer userId, Integer imageId) {
+        return imageRepository.checkOwnerOfImage(userId,imageId);
+    }
 }
 

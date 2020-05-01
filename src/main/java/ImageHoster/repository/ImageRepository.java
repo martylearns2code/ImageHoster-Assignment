@@ -1,6 +1,7 @@
 package ImageHoster.repository;
 
 import ImageHoster.model.Image;
+import ImageHoster.model.User;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
@@ -110,5 +111,11 @@ public class ImageRepository {
         }
     }
 
+    public boolean checkOwnerOfImage(Integer userId, Integer imageId) {
+        EntityManager em = emf.createEntityManager();
+        Query getOwnerQuery = em.createQuery("select i.user from Image i where i.id=:imageId").setParameter("imageId",imageId);
+        User ownerOfImage = (User) getOwnerQuery.getSingleResult();
+        return (ownerOfImage.getId()==userId);
+    }
 }
 
