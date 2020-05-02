@@ -32,5 +32,17 @@ public class UserService {
         }
     }
 
+    public boolean validatePassword(String password) {
+        boolean alphabetPresent,numberPresent,spCharPresent;
+        alphabetPresent=numberPresent=spCharPresent=false;
+        for(int i=0;i<password.length();i++){
+            char ch = password.charAt(i);
+            if(Character.isDigit(ch)) numberPresent=true;
+            if(Character.isLetter(ch)) alphabetPresent=true;
+            if(!Character.isLetter(ch) && !Character.isDigit(ch) && !Character.isSpaceChar(ch)) spCharPresent=true;
+            if(numberPresent && alphabetPresent && spCharPresent) break;
+        }
+        return numberPresent && alphabetPresent && spCharPresent;
+    }
 }
 

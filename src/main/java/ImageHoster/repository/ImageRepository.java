@@ -1,9 +1,9 @@
 package ImageHoster.repository;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.model.User;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -111,11 +111,26 @@ public class ImageRepository {
         }
     }
 
+
     public boolean checkOwnerOfImage(Integer userId, Integer imageId) {
         EntityManager em = emf.createEntityManager();
-        Query getOwnerQuery = em.createQuery("select i.user from Image i where i.id=:imageId").setParameter("imageId",imageId);
+        Query getOwnerQuery = em.createQuery("select i.user from Image i where i.id=:imageId").setParameter("imageId", imageId);
         User ownerOfImage = (User) getOwnerQuery.getSingleResult();
-        return (ownerOfImage.getId()==userId);
+        return (ownerOfImage.getId().equals(userId));
+    }
+
+    //Method to persist the new comment to the comments table
+    public Comment addCommentToImage(Comment newComment) {
+       EntityManager em=emf.createEntityManager();
+       EntityTransaction transaction = em.getTransaction();
+       try{
+           transaction.begin();
+           em.persist(newComment);
+           transaction.commit();
+       }catch(Exception e){
+           transaction.rollback();
+       }
+       return newComment;
     }
 }
 

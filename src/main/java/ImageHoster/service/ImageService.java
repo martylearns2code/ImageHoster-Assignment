@@ -1,5 +1,6 @@
 package ImageHoster.service;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,10 @@ public class ImageService {
     }
 
     public boolean checkOwnerOfImage(Integer userId, Integer imageId) {
-        return imageRepository.checkOwnerOfImage(userId,imageId);
+        return imageRepository.checkOwnerOfImage(userId, imageId);
+    }
+
+    public void addCommentToImage(Comment newComment) { imageRepository.addCommentToImage(newComment);
     }
 }
 
