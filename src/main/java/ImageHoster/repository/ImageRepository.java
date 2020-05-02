@@ -1,6 +1,8 @@
 package ImageHoster.repository;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
@@ -109,6 +111,18 @@ public class ImageRepository {
             transaction.rollback();
         }
     }
-
+    //Method to persist the new comment to the comments table
+    public Comment addCommentToImage(Comment newComment) {
+       EntityManager em=emf.createEntityManager();
+       EntityTransaction transaction = em.getTransaction();
+       try{
+           transaction.begin();
+           em.persist(newComment);
+           transaction.commit();
+       }catch(Exception e){
+           transaction.rollback();
+       }
+       return newComment;
+    }
 }
 

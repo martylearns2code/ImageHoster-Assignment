@@ -1,5 +1,6 @@
 package ImageHoster.controller;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.model.Tag;
 import ImageHoster.model.User;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Controller
@@ -50,6 +52,7 @@ public class ImageController {
         Image image = imageService.getImageByTitle(title);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        model.addAttribute("comments",image.getComments());
         return "images/image";
     }
 
@@ -145,7 +148,20 @@ public class ImageController {
         return "redirect:/images";
     }
 
+    //This method handles the request to commit the comments added to the image to the database.
+    @RequestMapping(value="/image/{imageId}/{imageTitle}/comments",method=RequestMethod.POST)
+    public String addCommentsOnImage(@RequestParam("comment") String comment, @PathVariable("imageId") Integer imageId, HttpSession session,Comment newComment){
+     User commentedByUser= (User) session.getAttribute("loggeduser");
+     LocalDate currentDate = LocalDate.now();
+     Image imageCommentedOn =imageService.getImage(imageId);
+     newComment.setText(comment);
+     newComment.setCreatedDate(currentDate);
+     newComment.setImage(imageCommentedOn);
+     newComment.setUser(commentedByUser);
+     imageService.addCommentToImage(newComment);
+     return "redirect:/images/"+imageCommentedOn.getTitle();
 
+    }
     //This method converts the image to Base64 format
     private String convertUploadedFileToBase64(MultipartFile file) throws IOException {
         return Base64.getEncoder().encodeToString(file.getBytes());

@@ -1,5 +1,6 @@
 package ImageHoster.service;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,5 +47,7 @@ public class ImageService {
         imageRepository.deleteImage(imageId);
     }
 
+    public void addCommentToImage(Comment newComment) { imageRepository.addCommentToImage(newComment);
+    }
 }
 
