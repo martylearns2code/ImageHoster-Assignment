@@ -1,4 +1,3 @@
-/*
 package ImageHoster.controller;
 
 import ImageHoster.model.Image;
@@ -182,6 +181,7 @@ public class ImageControllerTest {
         image.setTags(tags);
 
         Mockito.when(imageService.getImage(Mockito.anyInt())).thenReturn(image);
+        Mockito.when(imageService.checkOwnerOfImage(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
 
         this.mockMvc.perform(get("/editImage")
                 .param("imageId", "1")
@@ -227,6 +227,7 @@ public class ImageControllerTest {
 
 
         Mockito.when(imageService.getImage(Mockito.anyInt())).thenReturn(image);
+        Mockito.when(imageService.checkOwnerOfImage(Mockito.anyInt(),Mockito.anyInt())).thenReturn(false);
 
         this.mockMvc.perform(get("/editImage")
                 .param("imageId", "1")
@@ -258,6 +259,7 @@ public class ImageControllerTest {
         image.setUser(user);
 
         Mockito.when(imageService.getImage(Mockito.anyInt())).thenReturn(image);
+        Mockito.when(imageService.checkOwnerOfImage(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
 
         this.mockMvc.perform(delete("/deleteImage")
                 .param("imageId", "1")
@@ -302,7 +304,7 @@ public class ImageControllerTest {
 
 
         Mockito.when(imageService.getImage(Mockito.anyInt())).thenReturn(image);
-
+        Mockito.when(imageService.checkOwnerOfImage(Mockito.anyInt(),Mockito.anyInt())).thenReturn(false);
         this.mockMvc.perform(delete("/deleteImage")
                 .param("imageId", "1")
                 .session(session))
@@ -310,5 +312,5 @@ public class ImageControllerTest {
     }
 }
 
-*/
+
 

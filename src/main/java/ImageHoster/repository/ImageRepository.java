@@ -1,6 +1,5 @@
 package ImageHoster.repository;
 
-import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.model.User;
 import org.springframework.stereotype.Repository;
@@ -45,20 +44,6 @@ public class ImageRepository {
         List<Image> resultList = query.getResultList();
 
         return resultList;
-    }
-
-    //The method creates an instance of EntityManager
-    //Executes JPQL query to fetch the image from the database with corresponding title
-    //Returns the image in case the image is found in the database
-    //Returns null if no image is found in the database
-    public Image getImageById(Integer imageId) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            TypedQuery<Image> typedQuery = em.createQuery("SELECT i from Image i where i.id =:imageId", Image.class).setParameter("imageId", imageId);
-            return typedQuery.getSingleResult();
-        } catch (NoResultException nre) {
-            return null;
-        }
     }
 
     //The method creates an instance of EntityManager
@@ -119,18 +104,6 @@ public class ImageRepository {
         return (ownerOfImage.getId().equals(userId));
     }
 
-    //Method to persist the new comment to the comments table
-    public Comment addCommentToImage(Comment newComment) {
-       EntityManager em=emf.createEntityManager();
-       EntityTransaction transaction = em.getTransaction();
-       try{
-           transaction.begin();
-           em.persist(newComment);
-           transaction.commit();
-       }catch(Exception e){
-           transaction.rollback();
-       }
-       return newComment;
-    }
+
 }
 
