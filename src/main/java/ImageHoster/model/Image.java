@@ -7,29 +7,27 @@ import java.util.List;
 
 
 //@Entity annotation specifies that the corresponding class is a JPA entity
+//This class is annotated with @Entity annotation which indicates to the application
+//that this class should be represented as a Table in the imageHoster db
+//so a Table is created according to the attributes mentioned in this class
+// and it is done as per the annotations which mark various attributes
 @Entity
-//@Table annotation provides more options to customize the mapping.
-//Here the name of the table to be created in the database is explicitly mentioned as 'images'. Hence the table named 'images' will be created in the database with all the columns mapped to all the attributes in 'Image' class
 @Table(name = "images")
 public class Image {
 
-    //@Id annotation specifies that the corresponding attribute is a primary key
+    //various attributes of the class that will be represented as columns in the table "images" in imageHoster db
+    //each attribute is marked with @Annotations that has to be implemented while creating the table
+    // and while performing various transactions involving this table in the db
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    //@Column annotation specifies that the attribute will be mapped to the column in the database.
-    //Here the column name is explicitly mentioned as 'id'
     @Column(name = "id")
     private Integer id;
 
     @Column(name = "title")
     private String title;
 
-    // Text is a Postgres specific column type that allows you to save
-    // text based data that will be longer than 256 characters
-    // this is a base64 encoded version of the image
     @Column(columnDefinition = "TEXT")
     private String imageFile;
-
 
     @Column(name = "description")
     private String description;
@@ -37,23 +35,17 @@ public class Image {
     @Column(name = "date")
     private Date date;
 
-    //The 'images' table is mapped to 'users' table with Many:One mapping
-    //One image can have only one user (owner) but one user can have multiple images
-    //FetchType is EAGER
     @ManyToOne(fetch = FetchType.EAGER)
-    //Below annotation indicates that the name of the column in 'images' table referring the primary key in 'users' table will be 'user_id'
     @JoinColumn(name = "user_id")
     private User user;
 
-    //The attribute contains a list of all the tags of an image
-    //Note that no column will be generated for this attribute in the database instead a new table will be created
-    //Since the mapping is Many to Many, a new table will be generated containing the two columns both referencing to the primary key of both the tables ('images', 'tags')
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Tag> tags = new ArrayList<>();
+
     @OneToMany(mappedBy="image",cascade=CascadeType.REMOVE,fetch=FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
-
+    //constructors of the class
     public Image() {
     }
 
@@ -73,6 +65,7 @@ public class Image {
     }
 
 
+    //Getters and Setters for all the attributes of the class
 
     public Integer getId() {
         return id;

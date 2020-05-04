@@ -6,10 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+
+//The @Service annotation denotes that this is the class which takes care of the business logic of the application
+//This class acts as a intermediary between the controller classes and repository classes
+//gets the information from the controller class and interacts with the repository class
+//and returns the resulting information back to the controller which will respond back to the client browser's request
 @Service
-public class ImageService {
+public class ImageService {   // service class to execute the business logic for all requests involving images
     @Autowired
-    private ImageRepository imageRepository;
+    private ImageRepository imageRepository;    //a instance of the ImageRepository
 
     //Call the getAllImages() method in the Repository and obtain a List of all the images in the database
     public List<Image> getAllImages() {
@@ -37,6 +42,7 @@ public class ImageService {
         imageRepository.deleteImage(imageId);
     }
 
+    //The method calls the checkOwnerOfImage() in the repository and passes the loggedin-userId and the imageId,to verify the owner of the image
     public boolean checkOwnerOfImage(Integer userId, Integer imageId) {
         return imageRepository.checkOwnerOfImage(userId, imageId);
     }

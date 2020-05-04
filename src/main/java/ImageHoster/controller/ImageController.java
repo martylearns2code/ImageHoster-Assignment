@@ -18,151 +18,128 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.*;
 
+
+//This is the controller which will handle all the requests from the client that specifically involve the Images on the imageHoster db
+//handles the above requests and processes them by accessing the appropriate service layer
 @Controller
 public class ImageController {
 
     @Autowired
-    private ImageService imageService;
+    private ImageService imageService;      //instance of ImageService wired to this class
 
     @Autowired
-    private TagService tagService;
+    private TagService tagService;         //instance of TagService wired to this class
 
-    //This method displays all the images in the user home page after successful login
+    //This method displays all the images in the imageHoster db onto the user home page after successful login by the user
     @RequestMapping("images")
     public String getUserImages(Model model) {
-        List<Image> images = imageService.getAllImages();
+        List<Image> images = imageService.getAllImages();  //fetch all the images in the imageHoster db
         model.addAttribute("images", images);
         return "images";
     }
 
-    //This method is called when the details of the specific image with corresponding title are to be displayed
-    //The logic is to get the image from the databse with corresponding title. After getting the image from the database the details are shown
-    //First receive the dynamic parameter in the incoming request URL in a string variable 'title' and also the Model type object
-    //Call the getImageByTitle() method in the business logic to fetch all the details of that image
-    //Add the image in the Model type object with 'image' as the key
-    //Return 'images/image.html' file
-
-    //Also now you need to add the tags of an image in the Model type object
-    //Here a list of tags is added in the Model type object
-    //this list is then sent to 'images/image.html' file and the tags are displayed
+    //This controller method is invoked when the user requests for the details of a image by clicking on the title of the image
+    //These images are displayed on the user home page when the user successfully logs in
+    //The details of the image are fetched from the imageHoster db by passing on the imageid of the image to appropriate service method
     @RequestMapping("/images/{imageId}/{title}")
     public String showImage(@PathVariable("title") String title,@PathVariable("imageId") Integer imageId, Model model) {
-        Image image = imageService.getImage(imageId);
-        model.addAttribute("image", image);
+        Image image = imageService.getImage(imageId);          //fetch the image
+        model.addAttribute("image", image);                 //adds the details of the image to the model
         model.addAttribute("tags", image.getTags());
         model.addAttribute("comments",image.getComments());
-        return "images/image";
+        return "images/image";                                 //returns the image.html
     }
 
-    //This controller method is called when the request pattern is of type 'images/upload'
+    //This controller method is called when the user requests to upload a image after logging in successfully
     //The method returns 'images/upload.html' file
     @RequestMapping("/images/upload")
     public String newImage() {
         return "images/upload";
     }
 
-    //This controller method is called when the request pattern is of type 'images/upload' and also the incoming request is of POST type
-    //The method receives all the details of the image to be stored in the database, and now the image will be sent to the business logic to be persisted in the database
-    //After you get the imageFile, set the user of the image by getting the logged in user from the Http Session
-    //Convert the image to Base64 format and store it as a string in the 'imageFile' attribute
-    //Set the date on which the image is posted
-    //After storing the image, this method directs to the logged in user homepage displaying all the images
-
-    //Get the 'tags' request parameter using @RequestParam annotation which is just a string of all the tags
-    //Store all the tags in the database and make a list of all the tags using the findOrCreateTags() method
-    //set the tags attribute of the image as a list of all the tags returned by the findOrCreateTags() method
+    //This controller is called when the user enters the details of the image he/she wants to upload and submits the same
+    //This methods processes the request and calls the appropriate service method to pass on the details to the repository
     @RequestMapping(value = "/images/upload", method = RequestMethod.POST)
     public String createImage(@RequestParam("file") MultipartFile file, @RequestParam("tags") String tags, Image newImage, HttpSession session) throws IOException {
 
-        User user = (User) session.getAttribute("loggeduser");
+        User user = (User) session.getAttribute("loggeduser");     //gets the user who is uploading the image
         newImage.setUser(user);
-        String uploadedImageData = convertUploadedFileToBase64(file);
+        String uploadedImageData = convertUploadedFileToBase64(file);  //converts the image uploaded by the user into base64 format
         newImage.setImageFile(uploadedImageData);
 
-        List<Tag> imageTags = findOrCreateTags(tags);
+        List<Tag> imageTags = findOrCreateTags(tags);  //returns the list of tags associated with the image,from the string "tags"
         newImage.setTags(imageTags);
         newImage.setDate(new Date());
-        imageService.uploadImage(newImage);
-        return "redirect:/images";
+        imageService.uploadImage(newImage);   //calls the appropriate method in service layer to be committed to the db
+        return "redirect:/images";             //redirects to the "/images" request handler
+
     }
 
-    //This controller method is called when the request pattern is of type 'editImage'
-    //This method fetches the image with the corresponding id from the database and adds it to the model with the key as 'image'
-    //The method then returns 'images/edit.html' file wherein you fill all the updated details of the image
-
-    //The method first needs to convert the list of all the tags to a string containing all the tags separated by a comma and then add this string in a Model type object
-    //This string is then displayed by 'edit.html' file as previous tags of an image
+    //This controller method when the user requests to edit a image
+    //only the owner of the image can edit a image
+    //This method processes the request and responds accordingly based on the status of the user who wants to edit the image
     @RequestMapping(value = "/editImage")
     public String editImage(@RequestParam("imageId") Integer imageId,HttpSession session, Model model) {
-        User user = (User) session.getAttribute("loggeduser");
-        Image image = imageService.getImage(imageId);
-        boolean ownerOfImage = imageService.checkOwnerOfImage(user.getId(),imageId);
-        if (ownerOfImage) {
-            String tags = convertTagsToString(image.getTags());
-            model.addAttribute("image", image);
+        User user = (User) session.getAttribute("loggeduser");   //user who requested to edit image
+        Image image = imageService.getImage(imageId);                      //fetch the image
+        boolean ownerOfImage = imageService.checkOwnerOfImage(user.getId(),imageId);   //checks the status of the user
+        if (ownerOfImage) {                                                  //user is owner...allow user to edit
+            String tags = convertTagsToString(image.getTags()); //method call to convert the List of tags into a String
+            model.addAttribute("image", image);    //add the image details to model
             model.addAttribute("tags", tags);
-            return "images/edit";
-        }else{
+            return "images/edit";                    //return the edit.html with the image details to be edited
+        }else{                                                            //user is not owner..display appropriate message
             String editError ="Only the owner of the image can edit the image";
             model.addAttribute("image",image);
             model.addAttribute("tags",image.getTags());
-            model.addAttribute("editError",editError);
-            return "images/image";
+            model.addAttribute("editError",editError);  //add editError message to the model
+            return "images/image";  //return the same image with the error message
         }
     }
 
-    //This controller method is called when the request pattern is of type 'images/edit' and also the incoming request is of PUT type
-    //The method receives the imageFile, imageId, updated image, along with the Http Session
-    //The method adds the new imageFile to the updated image if user updates the imageFile and adds the previous imageFile to the new updated image if user does not choose to update the imageFile
-    //Set an id of the new updated image
-    //Set the user using Http Session
-    //Set the date on which the image is posted
-    //Call the updateImage() method in the business logic to update the image
-    //Direct to the same page showing the details of that particular updated image
-
-    //The method also receives tags parameter which is a string of all the tags separated by a comma using the annotation @RequestParam
-    //The method converts the string to a list of all the tags using findOrCreateTags() method and sets the tags attribute of an image as a list of all the tags
+    //This controller methods is called when the user submits the edited image and its details
+    //processes the request and calls the appropriate service method to update the image details
     @RequestMapping(value = "/editImage", method = RequestMethod.PUT)
     public String editImageSubmit(@RequestParam("file") MultipartFile file, @RequestParam("imageId") Integer imageId, @RequestParam("tags") String tags, Image updatedImage, HttpSession session) throws IOException {
 
-        Image image = imageService.getImage(imageId);
-        String updatedImageData = convertUploadedFileToBase64(file);
-        List<Tag> imageTags = findOrCreateTags(tags);
+        Image image = imageService.getImage(imageId);              //fetch the image
+        String updatedImageData = convertUploadedFileToBase64(file); //converts the image into base64 string
+        List<Tag> imageTags = findOrCreateTags(tags);   //converts the string of tags into list of tags
 
-        if (updatedImageData.isEmpty())
-            updatedImage.setImageFile(image.getImageFile());
+        if (updatedImageData.isEmpty())                        //was the image changed?
+            updatedImage.setImageFile(image.getImageFile());  //if no,keep the old image
         else {
-            updatedImage.setImageFile(updatedImageData);
+            updatedImage.setImageFile(updatedImageData);       //if yes,then update the image
         }
 
-        updatedImage.setId(imageId);
+        updatedImage.setId(imageId);                   //set the other details of the image
         User user = (User) session.getAttribute("loggeduser");
         updatedImage.setUser(user);
         updatedImage.setTags(imageTags);
         updatedImage.setDate(new Date());
 
-        imageService.updateImage(updatedImage);
-        return "redirect:/images/" + updatedImage.getId()+'/'+ updatedImage.getTitle();
+        imageService.updateImage(updatedImage);         //call the service method to update the image
+        return "redirect:/images/" + updatedImage.getId()+'/'+ updatedImage.getTitle();     //return the updated image
     }
 
 
-    //This controller method is called when the request pattern is of type 'deleteImage' and also the incoming request is of DELETE type
-    //The method calls the deleteImage() method in the business logic passing the id of the image to be deleted
-    //Looks for a controller method with request mapping of type '/images'
+    //This controller method is called when the user requests to delete a image
+    //Ascertains the owner of the image requested to be deleted
+    //processes the request accordingly based on the owner of the image
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
     public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId,HttpSession session,Model model) {
-        User user = (User) session.getAttribute("loggeduser");
-        Image image = imageService.getImage(imageId);
-        boolean ownerOfImage = imageService.checkOwnerOfImage(user.getId(),imageId);
-        if (ownerOfImage) {
-            imageService.deleteImage(imageId);
-            return "redirect:/images";
+        User user = (User) session.getAttribute("loggeduser");   //user who requested to delete a image
+        Image image = imageService.getImage(imageId);   //fetch the image
+        boolean ownerOfImage = imageService.checkOwnerOfImage(user.getId(),imageId);  //check the status of the user
+        if (ownerOfImage) {                             //owner of the image...allow delete
+            imageService.deleteImage(imageId);          //method call to appropriate service logic
+            return "redirect:/images";                  //display all the images in the db
         }else{
-            String deleteError ="Only the owner of the image can delete the image";
+            String deleteError ="Only the owner of the image can delete the image";  //not owner..display error message
             model.addAttribute("image",image);
             model.addAttribute("tags",image.getTags());
-            model.addAttribute("deleteError",deleteError);
-            return "images/image";
+            model.addAttribute("deleteError",deleteError);   //add deleteError to the model
+            return "images/image";                              //return the same image with the error message
         }
 
     }
@@ -173,9 +150,10 @@ public class ImageController {
         return Base64.getEncoder().encodeToString(file.getBytes());
     }
 
-    //findOrCreateTags() method has been implemented, which returns the list of tags after converting the ‘tags’ string to a list of all the tags and also stores the tags in the database if they do not exist in the database. Observe the method and complete the code where required for this method.
-    //Try to get the tag from the database using getTagByName() method. If tag is returned, you need not to store that tag in the database, and if null is returned, you need to first store that tag in the database and then the tag is added to a list
-    //After adding all tags to a list, the list is returned
+    //This method is used by the controller methods in this class.
+    //This method accepts a string of tags from the calling method and returns a List of tags
+    //This method in the process of converting the string into a list of tags accesses the concerned table in the db
+    //and creates a new tag in the db if the tag is not found in the Tags table
     private List<Tag> findOrCreateTags(String tagNames) {
         StringTokenizer st = new StringTokenizer(tagNames, ",");
         List<Tag> tags = new ArrayList<Tag>();
@@ -193,7 +171,7 @@ public class ImageController {
         return tags;
     }
 
-
+    //This method is used by the controller methods of this class
     //The method receives the list of all tags
     //Converts the list of all tags to a single string containing all the tags separated by a comma
     //Returns the string

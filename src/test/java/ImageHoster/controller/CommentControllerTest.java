@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(CommentController.class)
-public class CommentControllerTest {
+public class CommentControllerTest {     //tests the CommentController class
     protected MockHttpSession session;
 
     @Autowired

@@ -8,6 +8,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+//This class is used to create beans that are required for the accessing the database and manage the transactions on the database thru EntityManagerFactory bean.
+//This file is used to configure these beans and this is the information used by the application to configure the datasource
 @Configuration
 public class JpaConfig {
 

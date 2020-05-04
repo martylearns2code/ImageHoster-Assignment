@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(ImageController.class)
-public class ImageControllerTest {
+public class ImageControllerTest {   //tests the ImageController class
     protected MockHttpSession session;
 
     @Autowired

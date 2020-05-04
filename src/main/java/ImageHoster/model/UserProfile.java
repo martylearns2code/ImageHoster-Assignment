@@ -3,18 +3,19 @@ package ImageHoster.model;
 import javax.persistence.*;
 
 //@Entity annotation specifies that the corresponding class is a JPA entity
+//This class is annotated with @Entity annotation which indicates to the application
+//that this class should be represented as a Table in the imageHoster db
+//so a Table is created according to the attributes mentioned in this class
+// and it is done as per the annotations which mark various attributes
 @Entity
-
-//@Table annotation provides more options to customize the mapping.
-//Here the name of the table to be created in the database is explicitly mentioned as 'user_profile'. Hence the table named 'user_profile' will be created in the database with all the columns mapped to all the attributes in 'UserProfile' class
 @Table(name = "user_profile")
 public class UserProfile {
 
-    //@Id annotation specifies that the corresponding attribute is a primary key
+    //various attributes of the class that will be represented as columns in the table "user_profile" in imageHoster db
+    //each attribute is marked with @Annotations that has to be implemented while creating the table
+    // and while performing various transactions involving this table in the db
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    //@Column annotation specifies that the attribute will be mapped to the column in the database.
-    //Here the column name is explicitly mentioned as 'id'
     @Column(name = "id")
     private Integer id;
 
@@ -27,8 +28,11 @@ public class UserProfile {
     @Column(name = "mobile_number")
     private String mobileNumber;
 
+    //Default constructor for the class
     public UserProfile() {
     }
+
+    //Getters and Setters for all the attributes of the class
 
     public Integer getId() {
         return id;

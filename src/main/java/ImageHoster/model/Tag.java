@@ -4,16 +4,18 @@ import javax.persistence.*;
 import java.util.List;
 
 //@Entity annotation specifies that the corresponding class is a JPA entity
+//This class is annotated with @Entity annotation which indicates to the application
+//that this class should be represented as a Table in the imageHoster db
+//so a Table is created according to the attributes mentioned in this class
+// and it is done as per the annotations which mark various attributes
 @Entity
-//@Table annotation provides more options to customize the mapping.
-//Here the name of the table to be created in the database is explicitly mentioned as 'Tags'. Hence the table named 'Tags' will be created in the database with all the columns mapped to all the attributes in 'Tag' class
 @Table(name = "Tags")
 public class Tag {
 
-    //@Id annotation specifies that the corresponding attribute is a primary key
+    //various attributes of the class that will be represented as columns in the table "Tags" in imageHoster db
+    //each attribute is marked with @Annotations that has to be implemented while creating the table
+    // and while performing various transactions involving this table in the db
     @Id
-    //@Column annotation specifies that the attribute will be mapped to the column in the database.
-    //Here the column name is explicitly mentioned as 'id'
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -21,17 +23,14 @@ public class Tag {
     @Column
     private String name;
 
-    // Write the annotation for many to many between images and tags where they are mapped by tags field in the images table
-    //The 'tags' table is mapped to 'images' table with Many:Many mapping
-    //One image can have multiple categories/tags and there can be multiple images under one category/tag
-    //FetchType is LAZY
-    //Note that no column will be generated for this attribute in the database instead a new table will be created
-    //Since the mapping is Many to Many, a new table will be generated containing the two columns both referencing to the primary key of both the tables ('images', 'tags')
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")   //mapped by "tags" field in the images table
     private List<Image> images;
 
+    //Default constructor for the class
     public Tag() {
     }
+
+    //Getters and setters for all the attributes of the class
 
     public Tag(String tagName) {
         this.name = tagName;
